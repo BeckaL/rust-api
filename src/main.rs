@@ -1,5 +1,6 @@
 use rocket::response::content;
 #[macro_use] extern crate rocket;
+#[macro_use] extern crate reqwest;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -8,9 +9,24 @@ fn index() -> &'static str {
 
 #[get("/test")]
 fn test() -> content::RawJson<&'static str> {
-    // content::RawJson("{'hi': 'world'}")
-    content::RawJson("{'title': 'New Years Day', 'date': '2017-01-02', 'notes': 'Substitute day', 'bunting': true}")
+    blah();
+
+
+    // match body {
+    //     Ok(jsonBody) => content::RawJson(&jsonBody),
+    //     Err(_) => content::RawJson("{ 'message': 'uh-oh' }"),
+    // }
+    //
+    content::RawJson("{ 'hello' : 'world' }")
 }
+
+fn blah() -> () {
+    let requestUrl = "https://www.gov.uk/bank-holidays/england-and-wales.json";
+    let body = reqwest::get(requestUrl).await?.text().await?;
+
+    println!("body {:?}", body);
+}
+
 
 #[launch]
 fn rocket() -> _ {
