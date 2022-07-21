@@ -34,24 +34,6 @@ async fn test() -> String  {
     println!("test called");
     let rbh = blah().await;
     dbg!(rbh.division);
-    // content::RawJson("[{
-    //     'title': 'New Years Day',
-    //     'date': '2017-01-02',
-    //     'notes': 'Substitute day',
-    //     'bunting': true
-    //     },
-    //     {
-    //     'title': 'Good Friday',
-    //     'date': '2017-04-14',
-    //     'notes': '',
-    //     'bunting': false
-    //     },
-    //     {
-    //     'title': 'Easter Monday',
-    //     'date': '2017-04-17',
-    //     'notes': '',
-    //     'bunting': true
-    //     }]")
     "hi".to_string()
 }
 
