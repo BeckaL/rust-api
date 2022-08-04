@@ -40,8 +40,11 @@ async fn show_first_bank_holiday() -> String  {
 #[get("/show_all_bank_holidays")]
 async fn show_all_bank_holidays() -> String  {
     let regional_bank_holidays = fetch_bank_holiday_data().await;
-    
-    serde_json::to_string(&regional_bank_holidays).unwrap()
+
+    match serde_json::to_string(&regional_bank_holidays) {
+        Ok(bank_holiday_string) => bank_holiday_string,
+        Err(e)  => e.to_string(),
+    }
 }
 
 async fn fetch_bank_holiday_data() -> RegionalBankHoliday {
