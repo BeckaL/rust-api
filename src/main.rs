@@ -1,6 +1,7 @@
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate reqwest;
 
+use chrono::{Date, Utc, DateTime, NaiveDate};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::serde::json::Json;
 use serde_json::Result;
@@ -10,19 +11,19 @@ use std::error::Error;
 
 #[derive(Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
-struct BankHoliday {
-    title: String,
-    date: String,
-    notes: String,
-    bunting: bool,
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(crate = "rocket::serde")]
 struct RegionalBankHoliday {
     division: String,
     events: Vec<BankHoliday>
 }
+#[derive(Deserialize, Serialize)]
+#[serde(crate = "rocket::serde")]
+struct BankHoliday {
+    title: String,
+    date: NaiveDate,
+    notes: String,
+    bunting: bool,
+}
+
 
 #[get("/")]
 fn index() -> &'static str {
@@ -54,6 +55,15 @@ async fn fetch_bank_holiday_data() -> RegionalBankHoliday {
     let request_url = "https://www.gov.uk/bank-holidays/england-and-wales.json";
     reqwest::get(request_url).await.unwrap().json::<RegionalBankHoliday>().await.unwrap()
 }
+
+fn next_bank_holiday(date: NaiveDate, bank_holiday_data: RegionalBankHoliday) -> Option<BankHoliday> {
+    let mut iter = bank_holiday_data.events.iter();
+    iter.find(|&event| event.date == date)
+}
+
+// fn create_date_from_string(string: String) -> Date<Utc> {
+//     NaiveDate
+// }
 
 #[launch]
 fn rocket() -> _ {
