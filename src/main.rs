@@ -15,8 +15,10 @@ struct RegionalBankHoliday {
     division: String,
     events: Vec<BankHoliday>
 }
+
 #[derive(Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
+#[derive(PartialEq, Debug)]
 struct BankHoliday {
     title: String,
     date: NaiveDate,
@@ -56,7 +58,7 @@ async fn fetch_bank_holiday_data() -> RegionalBankHoliday {
     reqwest::get(request_url).await.unwrap().json::<RegionalBankHoliday>().await.unwrap()
 }
 
-fn next_bank_holiday(date: NaiveDate, bank_holiday_data: RegionalBankHoliday) -> Option<BankHoliday> {
+fn next_bank_holiday(date: NaiveDate, bank_holiday_data: &RegionalBankHoliday) -> Option<&BankHoliday> {
     let mut iter = bank_holiday_data.events.iter();
     iter.find(|&event| event.date == date)
 }
@@ -68,4 +70,33 @@ fn next_bank_holiday(date: NaiveDate, bank_holiday_data: RegionalBankHoliday) ->
 #[launch]
 fn rocket() -> _ {
     rocket::build().mount("/", routes![index, show_first_bank_holiday, show_all_bank_holidays])
+}
+
+
+#[cfg(test)]
+mod tests {
+    use chrono::NaiveDate;
+    use crate::{BankHoliday, next_bank_holiday, RegionalBankHoliday};
+
+    #[test]
+    fn returns_next_bank_holiday_when_one_is_found() {
+        let date: NaiveDate = NaiveDate::from_ymd(2022, 8, 4);
+        let bank_holiday_on_date: BankHoliday = BankHoliday{
+            title: String::from("a bank holiday"),
+            date: date,
+            notes: String::from(" "),
+            bunting: false,
+        };
+        let rbh: RegionalBankHoliday = RegionalBankHoliday {
+            division: String::from("whatever"),
+            events: vec!(bank_holiday_on_date),
+        };
+        // TODO: be able to reference original bank holiday
+        assert_eq!(next_bank_holiday(date, &rbh), Some(&BankHoliday{
+            title: String::from("a bank holiday"),
+            date: date,
+            notes: String::from(" "),
+            bunting: false,
+        }))
+    }
 }
