@@ -53,6 +53,19 @@ async fn show_all_bank_holidays() -> String  {
     }
 }
 
+#[get("/is_4_8_2022_a_bank_holiday")] // TODO: make this do query params
+async fn is_4_8_2022_a_bank_holiday() -> String  { 
+    let date: NaiveDate = NaiveDate::from_ymd(2022, 8, 4);
+    let bank_holiday_data = fetch_bank_holiday_data().await;
+    
+    let thing = next_bank_holiday(date, &bank_holiday_data);
+    match thing {
+        Some(_) => String::from("yes"),
+        None  => String::from("no"),
+    }
+
+}
+
 async fn fetch_bank_holiday_data() -> RegionalBankHoliday {
     let request_url = "https://www.gov.uk/bank-holidays/england-and-wales.json";
     reqwest::get(request_url).await.unwrap().json::<RegionalBankHoliday>().await.unwrap()
@@ -69,7 +82,7 @@ fn next_bank_holiday(date: NaiveDate, bank_holiday_data: &RegionalBankHoliday) -
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index, show_first_bank_holiday, show_all_bank_holidays])
+    rocket::build().mount("/", routes![index, show_first_bank_holiday, show_all_bank_holidays, is_4_8_2022_a_bank_holiday])
 }
 
 
